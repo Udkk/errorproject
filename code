@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.26;
+
+contract project{
+  function requireError(uint i) public pure returns(uint) {
+      require(i>10,"i should be greater than ten");
+      return i*2;
+  }
+
+  function revertError(uint j) public pure returns(uint){
+    if(j<= 10){
+    revert("j should be greater than 10");
+  }
+  return j-10;
+}
+ 
+  function assertError(uint a) public pure returns(uint)  {
+    assert(a == 10);
+    return a + 20;
+  } 
+
+}
