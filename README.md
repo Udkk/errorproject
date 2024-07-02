@@ -1,25 +1,39 @@
-Solidity contract project contains three functions demonstrating different error handling mechanisms: require, revert, and assert. Let's go through each function:
+Here's a detailed explanation of the three error handling techniques in Solidity:
 
-requireError(uint i):
+1. Revert
 
-Uses require to enforce a condition (i > 10).
-If i is not greater than 10, it will revert with the message "i should be greater than ten".
-Otherwise, it returns i * 2.
-revertError(uint j):
+The revert statement is used to undo all changes made by the current transaction and revert to the previous state. When a revert statement is executed, the following happens:
 
-Checks if j is less than or equal to 10.
-If true, it reverts with the message "j should be greater than 10".
-Otherwise, it calculates and returns j - 10.
-assertError(uint a):
+All changes made to the contract's state are undone.
+The transaction is rolled back, and the contract's state is restored to its previous state.
+The transaction is marked as failed, and any gas consumed by the transaction is refunded.
+An error message can be provided to explain why the transaction was reverted.
 
-Uses assert to validate that a equals 10.
-If a is not 10, the transaction will revert.
-If a equals 10, it returns a + 20.
 
-In summary:
+2. Require
 
-require: Used to validate conditions that should hold true for normal execution. If the condition fails, the transaction is terminated.
-revert: Used for exceptional cases where a condition is violated. It provides a custom error message and reverts the transaction.
-assert: Used to check for internal errors and conditions that should never fail unless there's a bug in the contract. If the condition fails, the transaction is reverted without a custom error message (in most cases).
+The require statement is used to validate conditions and revert if they are not met. When a require statement is executed, the following happens:
 
-Each function demonstrates a different use case for error handling in Solidity, ensuring that transactions and contract states remain predictable and secure.
+The condition is evaluated, and if it is false, the transaction is reverted.
+The transaction is rolled back, and the contract's state is restored to its previous state.
+The transaction is marked as failed, and any gas consumed by the transaction is refunded.
+An error message can be provided to explain why the transaction was reverted.
+
+
+3. Assert
+
+The assert statement is used to validate conditions and throw an exception if they are not met. When an assert statement is executed, the following happens:
+
+The condition is evaluated, and if it is false, an exception is thrown.
+The transaction is terminated, and the contract's state is not changed.
+The transaction is marked as failed, and any gas consumed by the transaction is refunded.
+An error message can be provided to explain why the transaction failed.
+
+
+
+
+
+
+require to validate that the caller is the teacher and the grade is within a valid range
+assert to validate that the student's grade is not already set
+revert to undo the transaction if the grade is too low
