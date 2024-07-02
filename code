@@ -1,22 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity 0.8.26;
+contract GradingSystem {
+    address public teacher;
+    mapping (address => uint) public grades;
 
-contract project{
-  function requireError(uint i) public pure returns(uint) {
-      require(i>10,"i should be greater than ten");
-      return i*2;
-  }
+    constructor() {
+        teacher = msg.sender;
+    }
 
-  function revertError(uint j) public pure returns(uint){
-    if(j<= 10){
-    revert("j should be greater than 10");
-  }
-  return j-10;
-}
- 
-  function assertError(uint a) public pure returns(uint)  {
-    assert(a == 10);
-    return a + 20;
-  } 
-
+    function submitGrade(address student, uint grade) public {
+        require(msg.sender == teacher, "Only the teacher can submit grades");
+        require(grade >= 0 && grade <= 100, "Grade must be between 0 and 100");
+        assert(grades[student] == 0);
+        grades[student] = grade;
+        if (grade < 40) {
+            revert("Grade is too low");
+        }
+    }
 }
