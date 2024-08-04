@@ -1,20 +1,82 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
+
 contract GradingSystem {
-    address public teacher;
-    mapping (address => uint) public grades;
+    address public admin;
+    mapping(address => bool) public teachers;
+    mapping(address => uint) public grades;
+    mapping(address => address[]) public studentTeachers;
+
+    event TeacherAdded(address indexed teacher);
+    event TeacherRemoved(address indexed teacher);
+    event GradeSubmitted(address indexed student, uint grade);
+    event GradeUpdated(address indexed student, uint grade);
+
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Only admin can perform this action");
+        _;
+    }
+
+    modifier onlyTeacher() {
+        require(teachers[msg.sender], "Only a registered teacher can perform this action");
+        _;
+    }
 
     constructor() {
-        teacher = msg.sender;
+        admin = msg.sender;
     }
 
-    function submitGrade(address student, uint grade) public {
-        require(msg.sender == teacher, "Only the teacher can submit grades");
+    // Admin functions
+    function addTeacher(address _teacher) external onlyAdmin {
+        require(_teacher != address(0), "Invalid address");
+        require(!teachers[_teacher], "Teacher already added");
+        
+        teachers[_teacher] = true;
+        emit TeacherAdded(_teacher);
+    }
+
+    function removeTeacher(address _teacher) external onlyAdmin {
+        require(_teacher != address(0), "Invalid address");
+        require(teachers[_teacher], "Teacher not found");
+        
+        teachers[_teacher] = false;
+        emit TeacherRemoved(_teacher);
+    }
+
+    // Teacher functions
+    function submitGrade(address student, uint grade) external onlyTeacher {
         require(grade >= 0 && grade <= 100, "Grade must be between 0 and 100");
-        assert(grades[student] == 0);
+        
+        // Use assert to ensure that grades for a student are not overwritten
+        assert(grades[student] == 0); 
+        
         grades[student] = grade;
-        if (grade < 40) {
-            revert("Grade is too low");
+        studentTeachers[student].push(msg.sender);
+
+        emit GradeSubmitted(student, grade);
+
+        // Use revert to prevent low grades if required
+        if (grade < 30) {
+            revert("Grade is too low, student may need additional support");
+            
         }
     }
+
+    function updateGrade(address student, uint grade) external onlyTeacher {
+        require(grades[student] != 0, "No grade to update");
+        require(grade >= 0 && grade <= 100, "Grade must be between 0 and 100");
+
+        // Use assert to ensure the grade is being updated correctly
+        assert(grades[student] > 0); 
+        
+        grades[student] = grade;
+        emit GradeUpdated(student, grade);
+    }
+
+    // Public functions
+    function getGrade(address student) external view returns (uint) {
+        return grades[student];
+    }
+
+    
 }
